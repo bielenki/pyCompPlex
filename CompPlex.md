@@ -36,6 +36,8 @@ Sendo N o número de estados de DN (quantidade de valores de DN sem repetições
 em uma amostra de pixel selecionados na imagem temos que a entropia máxima
 admitida para esta amostra é:
 
+![fig1](https://github.com/bielenki/pyCompPlex/CompPlex_arquivos/image001.png?raw=true)
+
 Dividindo-se o total de valores de um determinado estado de DN pelo total de
 pixel da amostra temos a probabilidade P(DN) de ocorrência deste valor dentro da
 amostra. A entropia de Shannon para a amostra é então calculada como:
