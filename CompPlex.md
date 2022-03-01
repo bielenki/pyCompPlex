@@ -36,11 +36,13 @@ Sendo N o número de estados de DN (quantidade de valores de DN sem repetições
 em uma amostra de pixel selecionados na imagem temos que a entropia máxima
 admitida para esta amostra é:
 
-![fig1](https://github.com/bielenki/pyCompPlex/CompPlex_arquivos/image001.png?raw=true)
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image002.png?raw=true)
 
 Dividindo-se o total de valores de um determinado estado de DN pelo total de
 pixel da amostra temos a probabilidade P(DN) de ocorrência deste valor dentro da
 amostra. A entropia de Shannon para a amostra é então calculada como:
+
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image003.png?raw=true)
 
 Outras medidas de complexidade utilizadas baseiam-se na percepção do
 desequilíbrio entre os estados de informação.
@@ -49,14 +51,25 @@ Segundo apresentam Lopez-Ruiz, Mancini e Calbet (2010) o desequilíbrio D pode
 ser mensurado segundo uma distância entre o estado atual do sistema e a condição
 de equilíbrio que é calculada como:
 
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image005.png?raw=true)
+
 Sendo:
 
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image007.png?raw=true)
+
 Temos que:
+
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image009.png?raw=true)
 
 Shiner, Davison, and Landsberg Shiner, Davison, and Landsberg Shiner, Davison e Landsberg (1999) já haviam proposto calcular o desequilíbrio
 D’ como o complemento do equilíbrio, sendo:
 
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image011.png?raw=true)
+
 E assim, temos que:
+
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image013.png?raw=true)
+
 
 **3 A Ferramenta CompPlex Tools**
 
@@ -71,7 +84,7 @@ diretórios de plugins do QGIS para o perfil padrão.
 Este plugin insere à interface do QGIS uma nova toolbar de onde pode-se acessar
 as três ferramentas para cálculo das métricas de complexidade.
 
-![](media/85af18dbaa0b2068b64093d0bcc4ff56.png)
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image015.png?raw=true)
 
 Barra de ferramentas CompPlex Tools
 
@@ -111,8 +124,7 @@ OK, os cálculos são realizados e salvos no arquivo selecionado e uma tabela co
 o nome Resultados é adicionada ao projeto ficando visível no painel de layers,
 podendo ser aberta com o comando Open Attribute Table.
 
-![Interface gráfica do usuário, Aplicativo Descrição gerada
-automaticamente](media/cd3e1d52fb2a7b9e06741be1e2bf7c69.png)
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image017.png?raw=true)
 
 Caixa de diálogo para seleção de parâmetros da ferramenta HeROI
 
@@ -153,7 +165,7 @@ kernel.
 Na figura podemos ver a seleção de DNs por meio do Kernel e o valor da função de
 complexidade formando uma imagem de saída.
 
-![Entendendo as convoluções](media/7ce94391c3443af7559a3eebdca803d0.jpeg)
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image019.png?raw=true)
 
 Princípio da janela móvel para a convolução
 
@@ -174,8 +186,7 @@ processamento.
 Depois da seleção dos parâmetros a ferramenta é executada clicando-se no botão
 OK, os cálculos são realizados e a imagem é salva no arquivo selecionado.
 
-![Interface gráfica do usuário, Aplicativo Descrição gerada
-automaticamente](media/46711791667967275966c255016951ec.png)
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image021.png?raw=true)
 
 Caixa de diálogo para seleção de parâmetros da ferramenta Janus
 
@@ -208,8 +219,7 @@ para os arquivos de saída basta-se escolher o diretório e nele serão salvos
 quatro arquivos tiff, um para cada métrica (He, He/HMax, SDL e LMC), como
 resultados da análise.
 
-![Interface gráfica do usuário, Aplicativo Descrição gerada
-automaticamente](media/a1481d9d2a13056e244650ece2f99b04.png)
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image023.png?raw=true)
 
 Caixa de diálogo para seleção de parâmetros da ferramenta Chronos
 
@@ -237,14 +247,13 @@ Convenções usadas no texto para execução dos exercícios práticos:
 | DESCRIÇÃO                                                             | PROCEDIMENTO PARA EXECUÇÃO                                                                                                                                              |
 |-----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Aceitar, ligar, ativar ou selecionar algo.                            | Clicar o botão esquerdo (**BE**) ou o direito (**BD**) do mouse para aceitar, ligar, ativar ou selecionar algo. Ex.: **Ativar** (**BE**); **Selecionar** (**BE**); etc. |
-| Ação ou recurso, os quais são indicados pelo nome e ícone.            | Clicar (BE) sobre o ícone ![CatalogWindowShow32](media/8e227e1a4c3387af9e7a9a2b438a427e.png) da barra standard                                                          |
+| Ação ou recurso, os quais são indicados pelo nome e ícone.            | Clicar (BE) sobre o ícone ![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image025.png?raw=true) da barra standard                                                          |
 | Entrada de nome ou valor pelo teclado, com borda.                     | Digitar nome ou valor, se ele estiver com bordas. Ex.: Nome: HIDRO                                                                                                      |
 | Seleção de uma ação ou recurso, se sublinhado**.**                    | Quando a palavra estiver sublinhada, clicar com **BE** para selecioná-la. Exemplo: Gerenciador: Access (**BE**)                                                         |
 | Nome da janela (Negrito, Itálico)                                     | Nome da caixa de diálogo aberta**.** Ex.: **Table of Contents**                                                                                                         |
 | Nome do campo ou sub-caixa de diálogo dentro de uma janela (Itálico). | Indica sub-caixa de diálogo ou campo dentro de uma janela aberta. Ex: *Construction Tools*                                                                              |
 
-Inicie o QGIS ![Desenho de um círculo Descrição gerada automaticamente com
-confiança média](media/79da839be4b83a0ccab44b4a4a1e1590.jpeg)
+Inicie o QGIS ![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image027.png?raw=true)
 
 Iremos acessar o diretório de plugins default do QGIS para colar o diretório do
 plugin CompPlex Tools
