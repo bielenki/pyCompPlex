@@ -51,15 +51,7 @@ Sendo:
 
 Temos que:
 
-Shiner, Davi-
-
-son, and Landsberg
-
-Shiner, Davi-
-
-son, and Landsberg
-
-Shiner, Davison e Landsberg (1999) já haviam proposto calcular o desequilíbrio
+Shiner, Davison, and Landsberg Shiner, Davison, and Landsberg Shiner, Davison e Landsberg (1999) já haviam proposto calcular o desequilíbrio
 D’ como o complemento do equilíbrio, sendo:
 
 E assim, temos que:
