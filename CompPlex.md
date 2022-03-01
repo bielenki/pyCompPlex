@@ -165,7 +165,7 @@ kernel.
 Na figura podemos ver a seleção de DNs por meio do Kernel e o valor da função de
 complexidade formando uma imagem de saída.
 
-![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image019.png?raw=true)
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image019.jpg?raw=true)
 
 Princípio da janela móvel para a convolução
 
@@ -186,7 +186,7 @@ processamento.
 Depois da seleção dos parâmetros a ferramenta é executada clicando-se no botão
 OK, os cálculos são realizados e a imagem é salva no arquivo selecionado.
 
-![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image021.png?raw=true)
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image021.jpg?raw=true)
 
 Caixa de diálogo para seleção de parâmetros da ferramenta Janus
 
@@ -219,7 +219,7 @@ para os arquivos de saída basta-se escolher o diretório e nele serão salvos
 quatro arquivos tiff, um para cada métrica (He, He/HMax, SDL e LMC), como
 resultados da análise.
 
-![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image023.png?raw=true)
+![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image023.jpg?raw=true)
 
 Caixa de diálogo para seleção de parâmetros da ferramenta Chronos
 
@@ -247,13 +247,13 @@ Convenções usadas no texto para execução dos exercícios práticos:
 | DESCRIÇÃO                                                             | PROCEDIMENTO PARA EXECUÇÃO                                                                                                                                              |
 |-----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Aceitar, ligar, ativar ou selecionar algo.                            | Clicar o botão esquerdo (**BE**) ou o direito (**BD**) do mouse para aceitar, ligar, ativar ou selecionar algo. Ex.: **Ativar** (**BE**); **Selecionar** (**BE**); etc. |
-| Ação ou recurso, os quais são indicados pelo nome e ícone.            | Clicar (BE) sobre o ícone ![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image025.png?raw=true) da barra standard                                                          |
+| Ação ou recurso, os quais são indicados pelo nome e ícone.            | Clicar (BE) sobre o ícone ![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image024.png?raw=true) da barra standard                                                          |
 | Entrada de nome ou valor pelo teclado, com borda.                     | Digitar nome ou valor, se ele estiver com bordas. Ex.: Nome: HIDRO                                                                                                      |
 | Seleção de uma ação ou recurso, se sublinhado**.**                    | Quando a palavra estiver sublinhada, clicar com **BE** para selecioná-la. Exemplo: Gerenciador: Access (**BE**)                                                         |
 | Nome da janela (Negrito, Itálico)                                     | Nome da caixa de diálogo aberta**.** Ex.: **Table of Contents**                                                                                                         |
 | Nome do campo ou sub-caixa de diálogo dentro de uma janela (Itálico). | Indica sub-caixa de diálogo ou campo dentro de uma janela aberta. Ex: *Construction Tools*                                                                              |
 
-Inicie o QGIS ![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image027.png?raw=true)
+Inicie o QGIS ![fig1](https://github.com/bielenki/pyCompPlex/blob/main/CompPlex_arquivos/image025.jpg?raw=true)
 
 Iremos acessar o diretório de plugins default do QGIS para colar o diretório do
 plugin CompPlex Tools
