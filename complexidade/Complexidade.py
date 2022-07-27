@@ -30,7 +30,8 @@ import pandas as pd
 import sys, os
 import qgis
 import rasterio
-
+import time
+import multiprocessing as mp
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QLabel
@@ -46,9 +47,17 @@ from .resources import *
 from .ComplexROI_dialog import compplex3ROIDialog
 from .ComplexJanus_dialog import compplex3JanusDialog
 from .ComplexCube_dialog import compplexCubeDialog
+from .ComplexJanus2_dialog import compplex3JanusDialog2
 import os.path
 
 from .entropia import convolucaoNumba
+from .entropia import convolucaoCube
+
+from .convol import pad_with
+from .convol import expandStrider
+from .convol import calcProb
+from .convol import convolucaoP
+
 os.environ['PROJ_LIB']='c:\\osgeo4~1\\apps\\python37\\lib\\site-packages\\pyproj\\proj_dir\\share\\proj'
 os.environ['GDAL_DATA']='c:\\osgeo4~1\\apps\\python37\\lib\\site-packages\\pyproj\\proj_dir\\share'
 
@@ -122,52 +131,7 @@ def zonal_stats(vector_path, raster_path, banda, nodata_value=None, global_src_e
      ds = None
      return stats, ArrayMasked, cont
 
-def convolucaoCube (listArray, rows, cols, imagens):
-    arrayHe = np.empty((rows,cols), dtype=float)
-    arrayHemax = np.empty((rows,cols), dtype=float)
-    arraySDL = np.empty((rows,cols), dtype=float)
-    arrayLMC = np.empty((rows,cols), dtype=float)
-    i=0
-    for row in range(rows):
 
-        for col in range(cols):
-            mascara=[]
-            for imagem in range(imagens):
-                mascara.append(listArray[imagem][row][col])
-            mascara.sort()
-            if i<5: print(mascara)
-            He=0.0
-            lenVet=len(mascara)
-            Lista=list(set(mascara))
-            Lista.sort()
-            if i<5: print(Lista)
-            if len(Lista)==1 and Lista.count(0)==1:
-                arrayHe[row,col]=0
-            else:
-                prob=[(mascara.count(i))/(lenVet*1.0) for i in Lista]
-                if i<5: print(prob)
-                for p in prob:
-                    if p>0:
-                        He += -1.0*p*np.log2(p)
-                arrayHe[row,col]=He
-
-                N=len(Lista)*1.0
-                if N == 1:
-                    C=0
-                else:
-                    Hmax=np.log2(N)
-                    C=He/Hmax
-                arrayHemax[row,col]=C
-                SDL=(1-C)*C
-                arraySDL[row,col]=SDL
-                D = 0.0
-                for p in prob:
-                    D += (p-(1/N))**2
-                LMC=D*C
-                arrayLMC[row,col]=LMC
-                i+=1
-
-    return (arrayHe, arrayHemax, arraySDL, arrayLMC)
 
 
 class compplex3:
@@ -286,6 +250,14 @@ class compplex3:
             callback=self.runCube,
             parent=self.iface.mainWindow())
         # will be set False in run()
+        icon_path4 = ':/plugins/Complexidade/icon80AA.png'
+        self.add_action(
+            icon_path4,
+            text=self.tr(u'CompPlex Janus2'),
+            callback=self.runJanus2,
+            parent=self.iface.mainWindow())
+        # will be set False in run()
+
         self.first_start = True
 
 
@@ -397,16 +369,16 @@ class compplex3:
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-
+            inicio = time.clock()
             NameImagem=self.dlg.mMapLayerComboBox.currentLayer().dataProvider().dataSourceUri()
-            Janela = ((self.dlg.cbJanela.currentIndex()+1)*2)+1
+            Janela = (self.dlg.cbJanela.currentIndex()+1)  #*2)+1
             Metrica = self.dlg.cbMetrica.currentIndex()
             outFN = self.dlg.caminho.text()
             Im=gdal.Open(NameImagem)
             cols=Im.RasterXSize
             rows=Im.RasterYSize
             NrBandas = Im.RasterCount
-            kernel=Janela - 2
+            kernel=Janela # - 2
             opcao=Metrica
 
             for band in range(NrBandas):
@@ -427,7 +399,102 @@ class compplex3:
                 del(ES)
                 del(ImArray)
             del(Im)
+            fim = time.clock()
+            print(fim-inicio)
             pass
+    def runJanus2(self):
+        """Run method that performs all the real work"""
+        #if __name__ == '__main__':
+        # Create the dialog with elements (after translation) and keep reference
+        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
+        if self.first_start == True:
+            self.first_start = False
+        self.dlg = compplex3JanusDialog2()
+        self.dlg.pushButton.clicked.connect(self.selecionar_saidaTiff)
+
+        self.dlg.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.dlg.caminho.clear()
+
+        # show the dialog
+        self.dlg.show()
+        # Run the dialog event loop
+        result = self.dlg.exec_()
+        # See if OK was pressed
+        if result:
+            inicio = time.clock()
+            NameImagem=self.dlg.mMapLayerComboBox.currentLayer().dataProvider().dataSourceUri()
+            Janela = (self.dlg.cbJanela.currentIndex()+1)  #*2)+1
+
+            outFN = self.dlg.caminho.text()
+            Im=gdal.Open(NameImagem)
+            cols=Im.RasterXSize
+            rows=Im.RasterYSize
+            NrBandas = Im.RasterCount
+
+            for band in range(NrBandas):
+                band +=1
+                banda_img=Im.GetRasterBand(band)
+                #NoData = banda_img.GetNoDataValue()
+                #ImArray=banda_img.ReadAsArray().astype(np.float)
+                data =np.array(banda_img.ReadAsArray())
+                k=Janela
+                sizePad = int((k-1)/2)
+                input = np.pad(data,sizePad,pad_with)
+                output = expandStrider(input,k)
+                num_cpus = mp.cpu_count()
+                pool = mp.Pool(num_cpus)
+
+                outputR =output.reshape((output.shape[0])*output.shape[1],output.shape[2],output.shape[3])
+
+                outputF=  np.array([item.flatten() for item in outputR])
+
+                processes =np.array( [pool.map(calcProb, outputF)]) #.transpose()
+
+                results = np.array([convolucaoP(item2) for item2 in processes[0]]).transpose()
+                Ent, Hmax, SDL, LMC = results[0], results[1], results[2], results[3]
+
+                arrayEnt =Ent.reshape(output.shape[0],output.shape[1]) #np.array(list(Ent)).reshape(output.shape[0],output.shape[1])
+                arrayHmax =Hmax.reshape(output.shape[0],output.shape[1])
+                arraySDL =SDL.reshape(output.shape[0],output.shape[1])
+                arrayLMC =LMC.reshape(output.shape[0],output.shape[1])
+
+                driver = gdal.GetDriverByName('GTiff')
+                ds = driver.Create(outFN.replace(".tif","")+"_B"+str(band)+"_He.tif", arrayEnt.shape[1], arrayEnt.shape[0], 1, gdal.GDT_Float32, )
+                ds.SetGeoTransform(Im.GetGeoTransform())
+                ds.SetProjection(Im.GetProjection())
+                outband=ds.GetRasterBand(1)
+
+                ds2 = driver.Create(outFN.replace(".tif","")+"_B"+str(band)+"_HeHmax.tif", arrayEnt.shape[1], arrayEnt.shape[0], 1, gdal.GDT_Float32, )
+                ds2.SetGeoTransform(Im.GetGeoTransform())
+                ds2.SetProjection(Im.GetProjection())
+                outband2=ds2.GetRasterBand(1)
+
+                ds3 = driver.Create(outFN.replace(".tif","")+"_B"+str(band)+"_SDL.tif", arrayEnt.shape[1], arrayEnt.shape[0], 1, gdal.GDT_Float32, )
+                ds3.SetGeoTransform(Im.GetGeoTransform())
+                ds3.SetProjection(Im.GetProjection())
+                outband3=ds3.GetRasterBand(1)
+
+                ds4 = driver.Create(outFN.replace(".tif","")+"_B"+str(band)+"_LMC.tif", arrayEnt.shape[1], arrayEnt.shape[0], 1, gdal.GDT_Float32, )
+                ds4.SetGeoTransform(Im.GetGeoTransform())
+                ds4.SetProjection(Im.GetProjection())
+                outband4=ds4.GetRasterBand(1)
+
+                outband.WriteArray(arrayEnt)
+                outband2.WriteArray(arrayHmax)
+                outband3.WriteArray(arraySDL)
+                outband4.WriteArray(arrayLMC)
+
+                ds = None
+                ds2 = None
+                ds3 = None
+                ds4 = None
+
+            del(Im)
+            fim = time.clock()
+            print(fim-inicio)
+            pass
+
+
 
     def runCube(self):
         """Run method that performs all the real work"""
@@ -452,6 +519,8 @@ class compplex3:
         if result:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
+            Janela = (self.dlg.cbJanela.currentIndex()+1) #*2)+1
+            kernel=Janela #- 2
             gdal.AllRegister()
             inputRasters = self.dlg.caminhoRID.text()
             raster_paths = []
@@ -472,7 +541,7 @@ class compplex3:
             nrCols = Im.RasterXSize
             nrImagens = len(listRasterArrays)
 
-            output=convolucaoCube(listRasterArrays, nrRows, nrCols, nrImagens)
+            output=convolucaoCube(listRasterArrays, nrRows, nrCols, nrImagens, kernel)
 
             saida = self.dlg.caminhoROD.text()
 

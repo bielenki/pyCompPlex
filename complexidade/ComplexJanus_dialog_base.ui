@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
+    <width>593</width>
     <height>234</height>
    </rect>
   </property>
@@ -23,9 +23,9 @@
   <widget class="QDialogButtonBox" name="button_boxJanus">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>410</x>
      <y>190</y>
-     <width>341</width>
+     <width>171</width>
      <height>32</height>
     </rect>
    </property>
@@ -39,8 +39,8 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>170</y>
+     <x>70</x>
+     <y>180</y>
      <width>131</width>
      <height>51</height>
     </rect>
@@ -77,7 +77,7 @@
   <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox">
    <property name="geometry">
     <rect>
-     <x>270</x>
+     <x>380</x>
      <y>20</y>
      <width>160</width>
      <height>27</height>
@@ -92,7 +92,7 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>149</x>
+     <x>259</x>
      <y>20</y>
      <width>101</width>
      <height>20</height>
@@ -110,7 +110,7 @@
   <widget class="QLineEdit" name="caminho">
    <property name="geometry">
     <rect>
-     <x>269</x>
+     <x>379</x>
      <y>162</y>
      <width>161</width>
      <height>20</height>
@@ -128,7 +128,7 @@
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>439</x>
+     <x>549</x>
      <y>162</y>
      <width>31</width>
      <height>23</height>
@@ -141,7 +141,7 @@
   <widget class="QLabel" name="label_7">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>260</x>
      <y>160</y>
      <width>111</width>
      <height>21</height>
@@ -159,7 +159,7 @@
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>149</x>
+     <x>259</x>
      <y>120</y>
      <width>111</width>
      <height>21</height>
@@ -177,7 +177,7 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>149</x>
+     <x>259</x>
      <y>67</y>
      <width>101</width>
      <height>20</height>
@@ -195,7 +195,7 @@
   <widget class="QComboBox" name="cbJanela">
    <property name="geometry">
     <rect>
-     <x>270</x>
+     <x>380</x>
      <y>70</y>
      <width>161</width>
      <height>21</height>
@@ -248,7 +248,7 @@
   <widget class="QComboBox" name="cbMetrica">
    <property name="geometry">
     <rect>
-     <x>270</x>
+     <x>380</x>
      <y>120</y>
      <width>161</width>
      <height>22</height>
@@ -286,7 +286,7 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>70</x>
      <y>50</y>
      <width>131</width>
      <height>121</height>
@@ -294,6 +294,19 @@
    </property>
    <property name="text">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;img src=&quot;:/plugins/Complexidade/iconA.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>14</y>
+     <width>80</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/plugins/Complexidade/embrapa.png&quot; width=&quot;80&quot; height=&quot;30&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
  </widget>

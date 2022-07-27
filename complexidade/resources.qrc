@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/plugins/Complexidade">
+    <file>icon80AA.png</file>
+    <file>embrapa.png</file>
     <file>logoDHB.png</file>
     <file>icon80G.png</file>
     <file>icon80A.png</file>
