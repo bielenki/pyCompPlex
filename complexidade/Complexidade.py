@@ -21,8 +21,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-#import gdal
-import numpy as np
 from osgeo import gdal_array, ogr
 from osgeo import gdal
 import numpy as np
@@ -35,32 +33,23 @@ import multiprocessing as mp
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QLabel
-
+from qgis.PyQt.QtCore import QProcessEnvironment
 from qgis.core import QgsMapLayerProxyModel
 from qgis.core import QgsMessageLog
 from qgis.core import Qgis, QgsVectorLayer, QgsProject
-
-
+import subprocess
 # Initialize Qt resources from file resources.py
-from .resources import *
+from . import resources_rc
 # Import the code for the dialog
 from .ComplexROI_dialog import compplex3ROIDialog
 from .ComplexJanus_dialog import compplex3JanusDialog
 from .ComplexCube_dialog import compplexCubeDialog
-from .ComplexJanus2_dialog import compplex3JanusDialog2
+from .ComplexJanus2_dialog import compplexJanusDialog
 import os.path
-
-from .entropia import convolucaoNumba
 from .entropia import convolucaoCube
-
-from .convol import pad_with
-from .convol import expandStrider
-from .convol import calcProb
-from .convol import convolucaoP
-
 os.environ['PROJ_LIB']='c:\\osgeo4~1\\apps\\python37\\lib\\site-packages\\pyproj\\proj_dir\\share\\proj'
 os.environ['GDAL_DATA']='c:\\osgeo4~1\\apps\\python37\\lib\\site-packages\\pyproj\\proj_dir\\share'
-
+mp.set_start_method('spawn', force=True)
 
 def Complexidade(Vetor):
      lenVet=Vetor.size
@@ -131,14 +120,19 @@ def zonal_stats(vector_path, raster_path, banda, nodata_value=None, global_src_e
      ds = None
      return stats, ArrayMasked, cont
 
+def selecionar_EntradaTiffD(dialog):
+    """Abre um diretório e preenche o campo caminhoEntrada de qualquer janela de diálogo."""
+    arquivoCaminhoEntrada = QFileDialog.getExistingDirectory(dialog,
+                                                           "Selecione o diretório dos arquivos TIFF:")
+    dialog.caminhoRID.setText(arquivoCaminhoEntrada)
 
-
+def selecionar_saidaTiffD(dialog):
+    """Abre um diretório e preenche o campo caminhoSaida de qualquer janela de diálogo."""
+    arquivoCaminhoSaida = QFileDialog.getExistingDirectory(dialog, "Selecione o diretório para salvar os arquivos:")
+    dialog.caminhoROD.setText(arquivoCaminhoSaida)
 
 class compplex3:
-
-
     def __init__(self, iface):
-
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -149,26 +143,24 @@ class compplex3:
             self.plugin_dir,
             'i18n',
             'compplex3_{}.qm'.format(locale))
-
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
             QCoreApplication.installTranslator(self.translator)
-
         # Declare instance attributes
         self.actions = []
         #self.menu = self.tr(u'&CompPlex')
-
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
         self.first_start = None
-
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
-
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('compplex3', message)
 
+    def salvar_imagem(self, dados, caminho, metadata):
+        with rasterio.open(caminho, 'w', **metadata) as dst:
+            dst.write(dados, 1)
 
     def add_action(
         self,
@@ -181,30 +173,22 @@ class compplex3:
         status_tip=None,
         whats_this=None,
         parent=None):
-
-
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
         action.triggered.connect(callback)
         action.setEnabled(enabled_flag)
-
         if status_tip is not None:
             action.setStatusTip(status_tip)
-
         if whats_this is not None:
             action.setWhatsThis(whats_this)
-
         if add_to_toolbar:
             # Adds plugin icon to Plugins toolbar
             self.toolBar.addAction(action)
-
         if add_to_menu:
             self.iface.addPluginToMenu(
                 self.menu,
                 action)
-
         self.actions.append(action)
-
         return action
 
     def hello(self):
@@ -212,23 +196,17 @@ class compplex3:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-
         self.toolBar = self.iface.addToolBar("CompPlex Tools")
         self.toolBar.setObjectName("compplexTools")
-
         icon_path4 = ':/plugins/Complexidade/logoDHB.png'
         self.add_action(
             icon_path4,
             text=self.tr(u'CompPlex Tools'),
             callback=self.hello,
             parent=self.iface.mainWindow())
-
-
         drainageLabel=QLabel(self.toolBar)
         drainageLabel.setText("CompPlex Tools: ")
         self.toolBar.addWidget(drainageLabel)
-
-
         icon_path = ':/plugins/Complexidade/icon.png'
         self.add_action(
             icon_path,
@@ -242,7 +220,6 @@ class compplex3:
             callback=self.runJanus,
             parent=self.iface.mainWindow())
         # will be set False in run()
-
         icon_path3 = ':/plugins/Complexidade/icon80G.png'
         self.add_action(
             icon_path3,
@@ -257,9 +234,7 @@ class compplex3:
             callback=self.runJanus2,
             parent=self.iface.mainWindow())
         # will be set False in run()
-
         self.first_start = True
-
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -274,16 +249,8 @@ class compplex3:
         self.dlg.caminho.setText(arquivoCaminho[0])
 
     def selecionar_saidaTiff(self):
-        arquivoCaminho = QFileDialog.getSaveFileName(self.dlg, "Salvar o arquivo em: ", "", "*.tif")
-        self.dlg.caminho.setText(arquivoCaminho[0])
-
-    def selecionar_inputTiff(self):
-            arquivoCaminho = QFileDialog.getExistingDirectory(self.dlg, 'Select a directory to Rasters Input') #QFileDialog.getSaveFileName(self.dlg, "Salvar o arquivo em: ", "", "*.tif")
-            self.dlg.caminhoRID.setText(arquivoCaminho)#[0])
-
-    def selecionar_outputTiff(self):
-            arquivoCaminho = QFileDialog.getExistingDirectory(self.dlg, 'Select a directory to Rasters Output') #QFileDialog.getSaveFileName(self.dlg, "Salvar o arquivo em: ", "", "*.tif")
-            self.dlg.caminhoROD.setText(arquivoCaminho)#[0])
+        arquivoCaminho = QFileDialog.getSaveFileName(self.dlgJanus, "Salvar o arquivo em: ", "", "*.tif")
+        self.dlgJanus.caminho.setText(arquivoCaminho[0])
 
     def runROI(self):
         """Run method that performs all the real work"""
@@ -298,7 +265,6 @@ class compplex3:
         self.dlg.caminho.clear()
         # show the dialog
         self.dlg.show()
-
         layersP=[]
         layers = qgis.core.QgsProject.instance().layerTreeRoot().layerOrder()
         for item in layers:
@@ -310,7 +276,6 @@ class compplex3:
         layer=layersP[selectedLayerIndex]
         self.dlg.mFieldComboBox.setLayer(layer)
         self.dlg.mMapLayerComboBox_2.layerChanged.connect(self.dlg.mFieldComboBox.setLayer)
-
         # Run the dialog event loop
         result = self.dlg.exec_()
         # See if OK was pressed
@@ -327,7 +292,6 @@ class compplex3:
             layer = SHP.GetLayer()
             FeatureCount=layer.GetFeatureCount()
             imagem = gdal.Open(NameImagem)
-
             NrBandas = imagem.RasterCount
             colNames=['Banda','Regiao','He','Hmax','He/Hmax','SDL','LMC','DNCount','N','DNmax','DNmin','DNmean','DNstd']
             df_Results  = pd.DataFrame(columns = colNames)
@@ -341,228 +305,128 @@ class compplex3:
                       Comp=Complexidade(y.compressed())
                       EstDescritivas=stats[0][iter]
                       df_Results.loc[len(df_Results)] = [band,Class,Comp[0],Comp[1],Comp[2],Comp[3],Comp[4], EstDescritivas['count'],Comp[5],EstDescritivas['max'],EstDescritivas['min'],EstDescritivas['mean'],EstDescritivas['std']]
-
             df_Results.to_csv(Saida, encoding='utf-8', index=False)
-
             csv = QgsVectorLayer(Saida,'Resultado', 'ogr')
             QgsProject.instance().addMapLayer(csv)
             self.iface.mapCanvas().refresh()
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
             pass
+
     def runJanus(self):
-        """Run method that performs all the real work"""
-
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
             self.first_start = False
-        self.dlg = compplex3JanusDialog()
-        self.dlg.pushButton.clicked.connect(self.selecionar_saidaTiff)
-
-        self.dlg.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.RasterLayer)
-        self.dlg.caminho.clear()
-
+        self.dlgJanus = compplex3JanusDialog()
+        self.dlgJanus.pushButton.clicked.connect(self.selecionar_saidaTiff)
+        self.dlgJanus.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.dlgJanus.caminho.clear()
         # show the dialog
-        self.dlg.show()
+        self.dlgJanus.show()
         # Run the dialog event loop
-        result = self.dlg.exec_()
+        result = self.dlgJanus.exec_()
         # See if OK was pressed
         if result:
-            inicio = time.clock()
-            NameImagem=self.dlg.mMapLayerComboBox.currentLayer().dataProvider().dataSourceUri()
-            Janela = (self.dlg.cbJanela.currentIndex()+1)  #*2)+1
-            Metrica = self.dlg.cbMetrica.currentIndex()
-            outFN = self.dlg.caminho.text()
-            Im=gdal.Open(NameImagem)
-            cols=Im.RasterXSize
-            rows=Im.RasterYSize
-            NrBandas = Im.RasterCount
-            kernel=Janela # - 2
-            opcao=Metrica
-
-            for band in range(NrBandas):
-                band +=1
-                banda_img=Im.GetRasterBand(band)
-                #NoData = banda_img.GetNoDataValue()
-                ImArray=banda_img.ReadAsArray().astype(np.float)
-                EE=np.array(ImArray)
-                ES=convolucaoNumba(EE, ImArray, rows, cols, kernel, opcao)
-                driver = gdal.GetDriverByName('GTiff')
-                outDS = driver.Create(outFN.replace(".tif","")+"_B"+str(band)+".tif", cols, rows, 1, gdal.GDT_Float32)
-                outDS.SetGeoTransform(Im.GetGeoTransform())
-                outDS.SetProjection(Im.GetProjection())
-                outBand = outDS.GetRasterBand(1)
-                outBand.WriteArray(ES)
-                del(outDS)
-                del(EE)
-                del(ES)
-                del(ImArray)
-            del(Im)
-            fim = time.clock()
-            print(fim-inicio)
+            NameImagem=self.dlgJanus.mMapLayerComboBox.currentLayer().dataProvider().dataSourceUri()
+            janela = (self.dlgJanus.cbJanela.currentIndex()+1)
+            metrica = self.dlgJanus.cbMetrica.currentIndex()
+            outFN = self.dlgJanus.caminho.text()
+            python_executable = QProcessEnvironment.systemEnvironment().value("PYTHONHOME")
+            if python_executable:
+                python_executable = os.path.join(python_executable, "python.exe")
+            else:
+                python_executable = "Caminho do Python não encontrado"
+            print(python_executable)
+            plugin_dir = os.path.dirname(__file__)
+            if metrica == 4:
+                script_path = os.path.join(plugin_dir, 'compPlexJanus1_4m.py')
+                print(script_path, NameImagem, janela, metrica, outFN)
+                subprocess.Popen(
+                    [python_executable, script_path, '--texto1', NameImagem, '--numero1', str(janela), '--texto2',
+                     outFN])
+            else:
+                script_path = os.path.join(plugin_dir, 'compPlexJanus1.py')
+                print(script_path, NameImagem, janela, metrica, outFN)
+                subprocess.Popen(
+                    [python_executable, script_path, '--texto1', NameImagem, '--numero1', str(janela), '--numero2',
+                     str(metrica), '--texto2', outFN])
             pass
+
     def runJanus2(self):
-        """Run method that performs all the real work"""
-        #if __name__ == '__main__':
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
-            self.first_start = False
-        self.dlg = compplex3JanusDialog2()
-        self.dlg.pushButton.clicked.connect(self.selecionar_saidaTiff)
-
-        self.dlg.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.RasterLayer)
-        self.dlg.caminho.clear()
-
-        # show the dialog
-        self.dlg.show()
-        # Run the dialog event loop
-        result = self.dlg.exec_()
-        # See if OK was pressed
+        self.janusDialog = compplexJanusDialog()
+        self.janusDialog.showNormal()
+        self.janusDialog.activateWindow()  # Ativar a janela (dar foco)
+        self.janusDialog.raise_()
+        # Conectando botões da janela Janus aos métodos de seleção de diretórios
+        self.janusDialog.pushButtonEntrada.clicked.connect(lambda: selecionar_EntradaTiffD(self.janusDialog))
+        self.janusDialog.pushButtonSaida.clicked.connect(lambda: selecionar_saidaTiffD(self.janusDialog))
+        # Limpa os campos de entrada e saída
+        self.janusDialog.caminhoRID.clear()
+        self.janusDialog.caminhoROD.clear()
+        # Exibe o diálogo
+        result = self.janusDialog.exec_()
+        # Verifica se o botão OK foi pressionado
         if result:
-            inicio = time.clock()
-            NameImagem=self.dlg.mMapLayerComboBox.currentLayer().dataProvider().dataSourceUri()
-            Janela = (self.dlg.cbJanela.currentIndex()+1)  #*2)+1
-
-            outFN = self.dlg.caminho.text()
-            Im=gdal.Open(NameImagem)
-            cols=Im.RasterXSize
-            rows=Im.RasterYSize
-            NrBandas = Im.RasterCount
-
-            for band in range(NrBandas):
-                band +=1
-                banda_img=Im.GetRasterBand(band)
-                #NoData = banda_img.GetNoDataValue()
-                #ImArray=banda_img.ReadAsArray().astype(np.float)
-                data =np.array(banda_img.ReadAsArray())
-                k=Janela
-                sizePad = int((k-1)/2)
-                input = np.pad(data,sizePad,pad_with)
-                output = expandStrider(input,k)
-                num_cpus = mp.cpu_count()
-                pool = mp.Pool(num_cpus)
-
-                outputR =output.reshape((output.shape[0])*output.shape[1],output.shape[2],output.shape[3])
-
-                outputF=  np.array([item.flatten() for item in outputR])
-
-                processes =np.array( [pool.map(calcProb, outputF)]) #.transpose()
-
-                results = np.array([convolucaoP(item2) for item2 in processes[0]]).transpose()
-                Ent, Hmax, SDL, LMC = results[0], results[1], results[2], results[3]
-
-                arrayEnt =Ent.reshape(output.shape[0],output.shape[1]) #np.array(list(Ent)).reshape(output.shape[0],output.shape[1])
-                arrayHmax =Hmax.reshape(output.shape[0],output.shape[1])
-                arraySDL =SDL.reshape(output.shape[0],output.shape[1])
-                arrayLMC =LMC.reshape(output.shape[0],output.shape[1])
-
-                driver = gdal.GetDriverByName('GTiff')
-                ds = driver.Create(outFN.replace(".tif","")+"_B"+str(band)+"_He.tif", arrayEnt.shape[1], arrayEnt.shape[0], 1, gdal.GDT_Float32, )
-                ds.SetGeoTransform(Im.GetGeoTransform())
-                ds.SetProjection(Im.GetProjection())
-                outband=ds.GetRasterBand(1)
-
-                ds2 = driver.Create(outFN.replace(".tif","")+"_B"+str(band)+"_HeHmax.tif", arrayEnt.shape[1], arrayEnt.shape[0], 1, gdal.GDT_Float32, )
-                ds2.SetGeoTransform(Im.GetGeoTransform())
-                ds2.SetProjection(Im.GetProjection())
-                outband2=ds2.GetRasterBand(1)
-
-                ds3 = driver.Create(outFN.replace(".tif","")+"_B"+str(band)+"_SDL.tif", arrayEnt.shape[1], arrayEnt.shape[0], 1, gdal.GDT_Float32, )
-                ds3.SetGeoTransform(Im.GetGeoTransform())
-                ds3.SetProjection(Im.GetProjection())
-                outband3=ds3.GetRasterBand(1)
-
-                ds4 = driver.Create(outFN.replace(".tif","")+"_B"+str(band)+"_LMC.tif", arrayEnt.shape[1], arrayEnt.shape[0], 1, gdal.GDT_Float32, )
-                ds4.SetGeoTransform(Im.GetGeoTransform())
-                ds4.SetProjection(Im.GetProjection())
-                outband4=ds4.GetRasterBand(1)
-
-                outband.WriteArray(arrayEnt)
-                outband2.WriteArray(arrayHmax)
-                outband3.WriteArray(arraySDL)
-                outband4.WriteArray(arrayLMC)
-
-                ds = None
-                ds2 = None
-                ds3 = None
-                ds4 = None
-
-            del(Im)
-            fim = time.clock()
-            print(fim-inicio)
-            pass
-
-
+            janela = self.janusDialog.cbJanela.currentIndex() + 1
+            dirEntrada = self.janusDialog.caminhoRID.text()
+            dirSaida = self.janusDialog.caminhoROD.text()
+            python_executable = QProcessEnvironment.systemEnvironment().value("PYTHONHOME")
+            if python_executable:
+                python_executable = os.path.join(python_executable, "python.exe")
+            else:
+                python_executable = "Caminho do Python não encontrado"
+            plugin_dir = os.path.dirname(__file__)
+            script_path = os.path.join(plugin_dir, 'compPlexJanus.py')
+            print(janela, dirEntrada, dirSaida, script_path)
+            subprocess.Popen([python_executable, script_path, '--texto1', dirEntrada, '--texto2', dirSaida, '--numero', str(janela)])
 
     def runCube(self):
         """Run method that performs all the real work"""
-
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
             self.first_start = False
-        self.dlg = compplexCubeDialog()
-
-        self.dlg.pbRID.clicked.connect(self.selecionar_inputTiff)
-        self.dlg.pbROD.clicked.connect(self.selecionar_outputTiff)
-
-        self.dlg.caminhoRID.clear()
-        self.dlg.caminhoROD.clear()
-
+        self.dlgCube = compplexCubeDialog()
+        self.dlgCube.pbRID.clicked.connect(lambda: selecionar_EntradaTiffD(self.dlgCube))
+        self.dlgCube.pbROD.clicked.connect(lambda: selecionar_saidaTiffD(self.dlgCube))
+        self.dlgCube.caminhoRID.clear()
+        self.dlgCube.caminhoROD.clear()
         # show the dialog
-        self.dlg.show()
+        self.dlgCube.show()
         # Run the dialog event loop
-        result = self.dlg.exec_()
+        result = self.dlgCube.exec_()
         # See if OK was pressed
         if result:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
-            Janela = (self.dlg.cbJanela.currentIndex()+1) #*2)+1
-            kernel=Janela #- 2
+            Janela = self.dlgCube.cbJanela.currentIndex()
             gdal.AllRegister()
-            inputRasters = self.dlg.caminhoRID.text()
+            inputRasters = self.dlgCube.caminhoRID.text()
             raster_paths = []
             for root, dirs, files in os.walk(inputRasters):
                 for single_file in files:
                     if single_file.endswith('.tif'):
                         inpt_raster = os.path.join(root, single_file)
                         raster_paths.append(inpt_raster)
-
+            #print(raster_paths)
             listRasterArrays = []
-
             for path in raster_paths:
                 Im=gdal.Open(path)
                 banda_img=Im.GetRasterBand(1)
                 listRasterArrays.append(banda_img.ReadAsArray())
-
+            #print(listRasterArrays)
             nrRows = Im.RasterYSize
             nrCols = Im.RasterXSize
             nrImagens = len(listRasterArrays)
-
-            output=convolucaoCube(listRasterArrays, nrRows, nrCols, nrImagens, kernel)
-
-            saida = self.dlg.caminhoROD.text()
-
+            #print(nrRows,nrCols,nrImagens)
+            output=convolucaoCube(listRasterArrays, nrRows, nrCols, nrImagens, Janela)
+            #print(Janela)
+            dirSaida = self.dlgCube.caminhoROD.text()
             with rasterio.open(raster_paths[0]) as src:
                 ras_meta = src.profile
-            ras_meta['dtype']='float32'
-
-            outHe = rasterio.open(saida+"\Imagem_He.tif", 'w', **ras_meta)
-            outHe.write(output[0], 1)
-            outHe.close()
-
-            outHeMax = rasterio.open(saida+"\Imagem_HeMax.tif", 'w', **ras_meta)
-            outHeMax.write(output[1], 1)
-            outHeMax.close()
-
-            outSDL = rasterio.open(saida+"\Imagem_SDL.tif", 'w', **ras_meta)
-            outSDL.write(output[2], 1)
-            outSDL.close()
-
-            outLMC = rasterio.open(saida+"\Imagem_LMC.tif", 'w', **ras_meta)
-            outLMC.write(output[3], 1)
-            outLMC.close()
-
+            ras_meta['dtype'] = 'float32'
+            self.salvar_imagem(output[0], dirSaida + "/Imagem_He.tif", ras_meta)
+            self.salvar_imagem(output[1], dirSaida + "/Imagem_HeMax.tif", ras_meta)
+            self.salvar_imagem(output[2], dirSaida + "/Imagem_SDL.tif", ras_meta)
+            self.salvar_imagem(output[3], dirSaida + "/Imagem_LMC.tif", ras_meta)
+            #input("Pressione Enter para sair...")
             pass

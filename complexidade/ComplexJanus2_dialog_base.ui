@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>compplex3DialogBaseJanus</class>
- <widget class="QDialog" name="compplex3DialogBaseJanus">
+ <class>compplexDialogJanus</class>
+ <widget class="QDialog" name="compplexDialogJanus">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>593</width>
+    <width>550</width>
     <height>234</height>
    </rect>
   </property>
@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-    <normaloff>:/plugins/Complexidade/icon80A.png</normaloff>:/plugins/Complexidade/icon80A.png</iconset>
+    <normaloff>:/plugins/Complexidade/icon80AA.png</normaloff>:/plugins/Complexidade/icon80AA.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -23,7 +23,7 @@
   <widget class="QDialogButtonBox" name="button_boxJanus">
    <property name="geometry">
     <rect>
-     <x>410</x>
+     <x>360</x>
      <y>190</y>
      <width>171</width>
      <height>32</height>
@@ -36,63 +36,10 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>70</x>
-     <y>180</y>
-     <width>131</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="pixmap">
-    <pixmap resource="resources.qrc">:/plugins/Complexidade/logoDHB_P.png</pixmap>
-   </property>
-   <property name="scaledContents">
-    <bool>false</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>0</y>
-     <width>81</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="pixmap">
-    <pixmap resource="resources.qrc">:/plugins/Complexidade/ufscar.png</pixmap>
-   </property>
-   <property name="scaledContents">
-    <bool>false</bool>
-   </property>
-  </widget>
-  <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox">
-   <property name="geometry">
-    <rect>
-     <x>380</x>
-     <y>20</y>
-     <width>160</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>259</x>
+     <x>209</x>
      <y>20</y>
      <width>101</width>
      <height>20</height>
@@ -107,10 +54,10 @@
     <string>Raster Input:</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="caminho">
+  <widget class="QLineEdit" name="caminhoROD">
    <property name="geometry">
     <rect>
-     <x>379</x>
+     <x>329</x>
      <y>112</y>
      <width>161</width>
      <height>20</height>
@@ -125,10 +72,10 @@
     <string/>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="pushButtonSaida">
    <property name="geometry">
     <rect>
-     <x>549</x>
+     <x>499</x>
      <y>112</y>
      <width>31</width>
      <height>23</height>
@@ -141,7 +88,7 @@
   <widget class="QLabel" name="label_7">
    <property name="geometry">
     <rect>
-     <x>260</x>
+     <x>210</x>
      <y>110</y>
      <width>111</width>
      <height>21</height>
@@ -159,7 +106,7 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>259</x>
+     <x>209</x>
      <y>67</y>
      <width>101</width>
      <height>20</height>
@@ -177,7 +124,7 @@
   <widget class="QComboBox" name="cbJanela">
    <property name="geometry">
     <rect>
-     <x>380</x>
+     <x>330</x>
      <y>70</y>
      <width>161</width>
      <height>21</height>
@@ -230,8 +177,8 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>50</y>
+     <x>40</x>
+     <y>60</y>
      <width>131</width>
      <height>121</height>
     </rect>
@@ -240,27 +187,64 @@
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;img src=&quot;:/plugins/Complexidade/icon80AA.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_8">
+  <widget class="QLineEdit" name="caminhoRID">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>14</y>
-     <width>80</width>
-     <height>30</height>
+     <x>330</x>
+     <y>20</y>
+     <width>161</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonEntrada">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>20</y>
+     <width>31</width>
+     <height>23</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/plugins/Complexidade/embrapa.png&quot; width=&quot;80&quot; height=&quot;30&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>...</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>10</y>
+     <width>141</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;img src=&quot;:/plugins/Complexidade/logoDHB_P.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>170</y>
+     <width>171</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;img src=&quot;:/plugins/Complexidade/ufscar.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QgsMapLayerComboBox</class>
-   <extends>QComboBox</extends>
-   <header>qgsmaplayercombobox.h</header>
-  </customwidget>
- </customwidgets>
  <resources>
   
  </resources>
@@ -268,7 +252,7 @@
   <connection>
    <sender>button_boxJanus</sender>
    <signal>accepted()</signal>
-   <receiver>compplex3DialogBaseJanus</receiver>
+   <receiver>compplexDialogJanus</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -284,7 +268,7 @@
   <connection>
    <sender>button_boxJanus</sender>
    <signal>rejected()</signal>
-   <receiver>compplex3DialogBaseJanus</receiver>
+   <receiver>compplexDialogJanus</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
